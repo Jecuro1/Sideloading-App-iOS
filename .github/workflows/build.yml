@@ -1,0 +1,27 @@
+name: Build macOS App
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Build app bundle
+        run: ./Scripts/build-app.sh
+
+      - name: Upload app
+        uses: actions/upload-artifact@v4
+        with:
+          name: IPA-Beam-macOS
+          path: build/IPA-Beam.zip
+          if-no-files-found: error
