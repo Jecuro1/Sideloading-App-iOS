@@ -3,7 +3,7 @@
 </p>
 
 <h1 align="center">IPA Beam</h1>
-<p align="center"><b>IPA-Dateien per USB‑C oder WLAN aufs iPhone beamen – für Windows und macOS.</b></p>
+<p align="center"><b>IPA-Dateien per USB‑C oder WLAN aufs iPhone beamen – für Windows, macOS und als iPhone-App.</b></p>
 
 <p align="center">
   <img src="docs/screenshots/desktop/installing.jpg" width="900" alt="IPA Beam – Installation läuft">
@@ -24,6 +24,21 @@ Native macOS-Version (SwiftUI):
 | | |
 |---|---|
 | ![macOS Bereit](docs/screenshots/macos/ready.jpg) | ![macOS Erfolg](docs/screenshots/macos/success.jpg) |
+
+iPhone-App (Stufe 1):
+
+| Beam | Bibliothek | Zertifikate |
+|---|---|---|
+| <img src="docs/screenshots/ios/ready.jpg" width="260"> | <img src="docs/screenshots/ios/library.jpg" width="260"> | <img src="docs/screenshots/ios/certs.jpg" width="260"> |
+
+## 📱 iPhone-App (Ordner [`ios/`](ios))
+
+- IPA aus Dateien, Safari, Mail oder AirDrop öffnen („Öffnen in IPA Beam“) – Icon, Name, Version werden angezeigt
+- Bibliothek aller importierten IPAs (Teilen, Löschen)
+- Zertifikat (.p12 + Passwort, sicher im iOS-Schlüsselbund) und Provisioning-Profil hinzufügen und prüfen
+- **Noch nicht enthalten:** Signieren und Installieren direkt auf dem iPhone (nächste Stufe). Bis dahin installiert man Apps mit der PC/Mac-Version.
+- Installation der iPhone-App selbst: Artefakt **IPA-Beam-iOS-unsigned** aus *Actions → Build iOS App* mit IPA Beam am PC/Mac (Neu signieren aktiv) aufs iPhone beamen.
+- Selbst bauen: `cd ios && brew install xcodegen && xcodegen generate && open IPABeam.xcodeproj`
 
 ## 📦 Zwei Versionen
 

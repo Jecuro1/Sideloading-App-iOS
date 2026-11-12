@@ -71,7 +71,7 @@ struct BeamView: View {
 
         Text(state.selectedSigning == nil
              ? "Füge unter „Zertifikate“ dein .p12 + Profil hinzu."
-             : "Direkt auf diesem iPhone – ohne Computer.")
+             : "Prüft Zertifikat & Profil direkt auf dem iPhone.")
             .font(.system(size: 12, weight: .medium))
             .foregroundStyle(.white.opacity(0.5))
     }
