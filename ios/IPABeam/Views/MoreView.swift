@@ -93,7 +93,7 @@ struct InstallSetupCard: View {
                     }
                     .buttonStyle(SmallGradientButton())
                 }
-                setupStep(2, "Profil installieren", "Einstellungen → Allgemein → VPN und Geräteverwaltung → „IPA Beam – lokale Installation“ → Installieren.") {
+                setupStep(2, "Profil installieren", "Einstellungen → „Profil geladen“ (ganz oben) bzw. Allgemein → VPN und Geräteverwaltung → Installieren.") {
                     Button("Einstellungen") {
                         if let url = URL(string: UIApplication.openSettingsURLString) {
                             UIApplication.shared.open(url)

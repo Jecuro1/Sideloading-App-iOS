@@ -25,20 +25,28 @@ Native macOS-Version (SwiftUI):
 |---|---|
 | ![macOS Bereit](docs/screenshots/macos/ready.jpg) | ![macOS Erfolg](docs/screenshots/macos/success.jpg) |
 
-iPhone-App (Stufe 1):
+iPhone-App:
 
-| Beam | Bibliothek | Zertifikate |
-|---|---|---|
-| <img src="docs/screenshots/ios/ready.jpg" width="260"> | <img src="docs/screenshots/ios/library.jpg" width="260"> | <img src="docs/screenshots/ios/certs.jpg" width="260"> |
+| Beam | Installation läuft | Quellen & Updates | Einrichtung |
+|---|---|---|---|
+| <img src="docs/screenshots/ios/ready.jpg" width="200"> | <img src="docs/screenshots/ios/run.jpg" width="200"> | <img src="docs/screenshots/ios/sources.jpg" width="200"> | <img src="docs/screenshots/ios/setup.jpg" width="200"> |
 
-## 📱 iPhone-App (Ordner [`ios/`](ios))
+## 📱 iPhone-App (Ordner [`ios/`](ios)) – ohne PC
 
-- IPA aus Dateien, Safari, Mail oder AirDrop öffnen („Öffnen in IPA Beam“) – Icon, Name, Version werden angezeigt
-- Bibliothek aller importierten IPAs (Teilen, Löschen)
-- Zertifikat (.p12 + Passwort, sicher im iOS-Schlüsselbund) und Provisioning-Profil hinzufügen und prüfen
-- **Noch nicht enthalten:** Signieren und Installieren direkt auf dem iPhone (nächste Stufe). Bis dahin installiert man Apps mit der PC/Mac-Version.
-- Installation der iPhone-App selbst: Artefakt **IPA-Beam-iOS-unsigned** aus *Actions → Build iOS App* mit IPA Beam am PC/Mac (Neu signieren aktiv) aufs iPhone beamen.
-- Selbst bauen: `cd ios && brew install xcodegen && xcodegen generate && open IPABeam.xcodeproj`
+- **IPA öffnen** aus Dateien, Safari, Mail oder AirDrop („Öffnen in IPA Beam“)
+- **Signieren direkt auf dem iPhone** – zsign ist in die App eingebaut (mit OpenSSL)
+- **Installieren direkt auf dem iPhone** – über den iOS-eigenen Installer:
+  1. *Mehr → Installation einrichten → Profil laden* (Safari lädt das Profil)
+  2. Profil in den Einstellungen installieren
+  3. *Allgemein → Info → Zertifikatsvertrauenseinstellungen* → „IPA Beam Local CA“ einschalten
+
+  Das Zertifikat wird **auf deinem iPhone erzeugt**, gilt **nur für 127.0.0.1**, und der Hauptschlüssel wird sofort verworfen.
+- **Quellen & Updates ohne neue .ipa**: App-Listen im AltStore/SideStore-Format abonnieren. IPA Beam erkennt neue Versionen und aktualisiert per Tipp (laden → signieren → installieren).
+- **Ablauf-Anzeige**: mit kostenloser Apple‑ID laufen Signaturen nach 7 Tagen ab – „Erneut installieren“ erneuert sie.
+- **Erste Installation von IPA Beam selbst** (einmalig mit PC/Mac): Artefakt **IPA-Beam-iOS-unsigned** aus *Actions → Build iOS App* mit IPA Beam Desktop (Neu signieren an) aufs iPhone beamen.
+- Selbst bauen: `cd ios && ./scripts/fetch-zsign.sh && brew install xcodegen && xcodegen generate && open IPABeam.xcodeproj`
+
+> ⚠️ Die Installation auf dem iPhone konnte noch nicht auf einem echten Gerät getestet werden (nur im Simulator gebaut).
 
 ## 📦 Zwei Versionen
 
@@ -102,4 +110,4 @@ npm run screenshots       # Demo-Screenshots rendern
 
 - **Verschlüsselte IPAs** (direkt aus dem App Store) lassen sich nicht installieren.
 - Nutze die App nur für Apps, die du rechtmäßig verwenden darfst (eigene Apps, Open Source, Testbuilds).
-- Verwendete Open-Source-Komponenten: [appium-ios-device](https://github.com/appium/appium-ios-device) (Apache‑2.0), [zsign](https://github.com/zhlynn/zsign), Schrift [Inter](https://rsms.me/inter/) (OFL).
+- Verwendete Open-Source-Komponenten: [appium-ios-device](https://github.com/appium/appium-ios-device) (Apache‑2.0), [zsign](https://github.com/zhlynn/zsign) (MIT), [OpenSSL](https://github.com/krzyzanowskim/OpenSSL) (Apache‑2.0), [ZIPFoundation](https://github.com/weichsel/ZIPFoundation) (MIT), Schrift [Inter](https://rsms.me/inter/) (OFL).

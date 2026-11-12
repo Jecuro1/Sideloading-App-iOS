@@ -84,7 +84,7 @@ struct BeamView: View {
         if state.selectedSigning == nil { return "Füge unter „Zertifikate“ dein .p12 + Profil hinzu." }
         if state.installReady == false { return "Einmalig nötig: „Mehr → Installation einrichten“." }
         if let expires = state.selectedApp?.expiresAt {
-            let days = max(0, Calendar.current.dateComponents([.day], from: Date(), to: expires).day ?? 0)
+            let days = max(0, Int((expires.timeIntervalSinceNow / 86_400).rounded(.up)))
             return "Signatur gültig noch \(days) Tage – danach einfach erneut installieren."
         }
         return "Signiert und installiert direkt auf diesem iPhone."

@@ -71,7 +71,7 @@ private struct LibraryTile: View {
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(.white.opacity(0.5))
                     if let expires = app.expiresAt {
-                        let days = max(0, Calendar.current.dateComponents([.day], from: Date(), to: expires).day ?? 0)
+                        let days = max(0, Int((expires.timeIntervalSinceNow / 86_400).rounded(.up)))
                         Text(days == 0 ? "Abgelaufen" : "Noch \(days) Tage")
                             .font(.system(size: 10, weight: .bold))
                             .foregroundStyle(days < 3 ? Theme.warning : Theme.success)
