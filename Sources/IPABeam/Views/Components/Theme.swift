@@ -3,12 +3,14 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 enum Theme {
-    static let cyan = Color(red: 0.30, green: 0.80, blue: 1.00)
-    static let indigo = Color(red: 0.42, green: 0.40, blue: 1.00)
-    static let magenta = Color(red: 0.86, green: 0.36, blue: 0.96)
-    static let success = Color(red: 0.24, green: 0.84, blue: 0.56)
-    static let warning = Color(red: 1.00, green: 0.70, blue: 0.25)
-    static let danger = Color(red: 1.00, green: 0.38, blue: 0.42)
+    static let cyan = Color(red: 0.25, green: 0.86, blue: 1.00)
+    static let indigo = Color(red: 0.43, green: 0.38, blue: 1.00)
+    static let magenta = Color(red: 0.93, green: 0.33, blue: 0.95)
+    static let success = Color(red: 0.20, green: 0.92, blue: 0.62)
+    static let warning = Color(red: 1.00, green: 0.72, blue: 0.25)
+    static let danger = Color(red: 1.00, green: 0.33, blue: 0.42)
+    static let background = Color(red: 0.020, green: 0.022, blue: 0.055)
+    static let panel = Color(red: 0.07, green: 0.07, blue: 0.13)
 
     static let accent = LinearGradient(
         colors: [cyan, indigo, magenta],
@@ -20,41 +22,94 @@ enum Theme {
         colors: [cyan, indigo, magenta, cyan],
         center: .center
     )
+
+    static let titanium = LinearGradient(
+        colors: [Color(white: 0.55), Color(white: 0.16), Color(white: 0.40), Color(white: 0.12)],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
 }
 
 extension UTType {
     static let ipa = UTType(filenameExtension: "ipa", conformingTo: .zip) ?? .zip
 }
 
-// MARK: - Glass card
+func fract(_ value: Double) -> Double { value - floor(value) }
+
+// MARK: - Glass surfaces
 
 struct GlassCard: ViewModifier {
-    var padding: CGFloat = 22
-    var cornerRadius: CGFloat = 24
+    var padding: CGFloat = 20
+    var cornerRadius: CGFloat = 22
 
     func body(content: Content) -> some View {
         content
             .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .background {
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                            .fill(LinearGradient(
+                                colors: [Color.white.opacity(0.07), Color.white.opacity(0.01)],
+                                startPoint: .top, endPoint: .bottom
+                            ))
+                    )
+            }
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .strokeBorder(
                         LinearGradient(
-                            colors: [.white.opacity(0.22), .white.opacity(0.04)],
-                            startPoint: .top,
-                            endPoint: .bottom
+                            colors: [.white.opacity(0.20), .white.opacity(0.03), .white.opacity(0.08)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
                         ),
                         lineWidth: 1
                     )
             )
-            .shadow(color: .black.opacity(0.16), radius: 24, y: 10)
+            .shadow(color: .black.opacity(0.35), radius: 24, y: 12)
     }
 }
 
 extension View {
-    func glassCard(padding: CGFloat = 22, cornerRadius: CGFloat = 24) -> some View {
+    func glassCard(padding: CGFloat = 20, cornerRadius: CGFloat = 22) -> some View {
         modifier(GlassCard(padding: padding, cornerRadius: cornerRadius))
+    }
+
+    func neonBorder(cornerRadius: CGFloat, lineWidth: CGFloat = 1.5, active: Bool = true) -> some View {
+        modifier(NeonBorder(cornerRadius: cornerRadius, lineWidth: lineWidth, active: active))
+    }
+}
+
+/// Rotating cyan → indigo → magenta border.
+struct NeonBorder: ViewModifier {
+    var cornerRadius: CGFloat
+    var lineWidth: CGFloat
+    var active: Bool
+
+    func body(content: Content) -> some View {
+        content.overlay {
+            if active {
+                TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { timeline in
+                    let angle = fract(timeline.date.timeIntervalSinceReferenceDate / 5) * 360
+                    let gradient = AngularGradient(
+                        colors: [Theme.cyan, Theme.indigo, Theme.magenta, Theme.cyan],
+                        center: .center,
+                        angle: .degrees(angle)
+                    )
+                    ZStack {
+                        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                            .strokeBorder(gradient, lineWidth: lineWidth * 3)
+                            .blur(radius: 8)
+                            .opacity(0.55)
+                        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                            .strokeBorder(gradient, lineWidth: lineWidth)
+                    }
+                }
+                .allowsHitTesting(false)
+            }
+        }
     }
 }
 
@@ -87,15 +142,84 @@ struct GradientButtonStyle: ButtonStyle {
                 )
                 .overlay(Capsule().strokeBorder(.white.opacity(0.25), lineWidth: 1))
                 .shadow(
-                    color: Theme.indigo.opacity(isEnabled ? (hovering ? 0.65 : 0.45) : 0),
-                    radius: configuration.isPressed ? 6 : (hovering ? 22 : 16),
+                    color: Theme.indigo.opacity(isEnabled ? (hovering ? 0.7 : 0.45) : 0),
+                    radius: configuration.isPressed ? 6 : (hovering ? 22 : 14),
                     y: 6
                 )
-                .scaleEffect(configuration.isPressed ? 0.97 : (hovering && isEnabled ? 1.02 : 1))
+                .scaleEffect(configuration.isPressed ? 0.97 : (hovering && isEnabled ? 1.03 : 1))
                 .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
                 .animation(.easeOut(duration: 0.18), value: hovering)
                 .onHover { hovering = $0 }
         }
+    }
+}
+
+/// The big hero call-to-action: flowing gradient, shimmer sweep and glow.
+struct BeamButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        BeamButtonBody(configuration: configuration)
+    }
+
+    private struct BeamButtonBody: View {
+        let configuration: ButtonStyleConfiguration
+        @Environment(\.isEnabled) private var isEnabled
+        @State private var hovering = false
+
+        var body: some View {
+            TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: !isEnabled)) { timeline in
+                let t = timeline.date.timeIntervalSinceReferenceDate
+                let shimmer = fract(t / 2.6)
+                configuration.label
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 36)
+                    .frame(height: 58)
+                    .background {
+                        GeometryReader { proxy in
+                            ZStack {
+                                Capsule()
+                                    .fill(LinearGradient(
+                                        colors: [Theme.cyan, Theme.indigo, Theme.magenta, Theme.cyan],
+                                        startPoint: UnitPoint(x: -1 + fract(t / 6) * 2, y: 0),
+                                        endPoint: UnitPoint(x: 1 + fract(t / 6) * 2, y: 1)
+                                    ))
+                                LinearGradient(
+                                    colors: [.clear, .white.opacity(0.55), .clear],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                                .frame(width: 70)
+                                .rotationEffect(.degrees(18))
+                                .offset(x: -proxy.size.width / 2 - 70 + (proxy.size.width + 140) * shimmer)
+                                .blendMode(.plusLighter)
+                            }
+                            .clipShape(Capsule())
+                        }
+                    }
+                    .overlay(Capsule().strokeBorder(.white.opacity(0.35), lineWidth: 1))
+                    .saturation(isEnabled ? 1 : 0)
+                    .opacity(isEnabled ? 1 : 0.4)
+                    .shadow(color: Theme.indigo.opacity(isEnabled ? 0.8 : 0), radius: hovering ? 34 : 24, y: 8)
+                    .shadow(color: Theme.magenta.opacity(isEnabled ? 0.35 : 0), radius: 40, y: 14)
+            }
+            .scaleEffect(configuration.isPressed ? 0.96 : (hovering && isEnabled ? 1.04 : 1))
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: hovering)
+            .animation(.spring(response: 0.2, dampingFraction: 0.7), value: configuration.isPressed)
+            .onHover { hovering = $0 }
+        }
+    }
+}
+
+struct GlassIconButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .semibold))
+            .foregroundStyle(.white.opacity(0.9))
+            .frame(width: 36, height: 36)
+            .background(.ultraThinMaterial, in: Circle())
+            .overlay(Circle().strokeBorder(.white.opacity(0.14), lineWidth: 1))
+            .scaleEffect(configuration.isPressed ? 0.9 : 1)
+            .animation(.spring(response: 0.2, dampingFraction: 0.6), value: configuration.isPressed)
     }
 }
 
@@ -116,7 +240,8 @@ struct Pill: View {
         .foregroundStyle(tint)
         .padding(.horizontal, 9)
         .padding(.vertical, 4)
-        .background(tint.opacity(0.12), in: Capsule())
+        .background(tint.opacity(0.14), in: Capsule())
+        .overlay(Capsule().strokeBorder(tint.opacity(0.25), lineWidth: 0.5))
     }
 }
 
@@ -126,10 +251,10 @@ struct SectionLabel: View {
 
     var body: some View {
         Label(title, systemImage: symbol)
-            .font(.system(size: 12, weight: .bold, design: .rounded))
+            .font(.system(size: 11, weight: .heavy, design: .rounded))
             .textCase(.uppercase)
-            .tracking(0.8)
-            .foregroundStyle(.secondary)
+            .tracking(1.2)
+            .foregroundStyle(.white.opacity(0.5))
     }
 }
 
@@ -156,30 +281,55 @@ struct AppIconView: View {
         }
         .frame(width: size, height: size)
         .clipShape(shape)
-        .overlay(shape.strokeBorder(.white.opacity(0.15), lineWidth: 0.5))
-        .shadow(color: .black.opacity(0.25), radius: size * 0.12, y: size * 0.05)
+        .overlay(shape.strokeBorder(.white.opacity(0.18), lineWidth: 0.5))
     }
 }
 
 struct StatusDot: View {
     let color: Color
     var pulsing = false
-    @State private var animate = false
 
     var body: some View {
-        ZStack {
-            if pulsing {
-                Circle()
-                    .fill(color.opacity(0.35))
-                    .scaleEffect(animate ? 2.2 : 1)
-                    .opacity(animate ? 0 : 1)
+        TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: !pulsing)) { timeline in
+            let phase = fract(timeline.date.timeIntervalSinceReferenceDate / 1.6)
+            ZStack {
+                if pulsing {
+                    Circle()
+                        .fill(color.opacity(0.45))
+                        .scaleEffect(1 + phase * 1.6)
+                        .opacity(1 - phase)
+                }
+                Circle().fill(color)
+                    .shadow(color: color, radius: 4)
             }
-            Circle().fill(color)
         }
         .frame(width: 8, height: 8)
-        .onAppear {
-            guard pulsing else { return }
-            withAnimation(.easeOut(duration: 1.6).repeatForever(autoreverses: false)) { animate = true }
+    }
+}
+
+/// Gives SwiftUI access to the hosting NSWindow.
+struct WindowConfigurator: NSViewRepresentable {
+    let configure: (NSWindow) -> Void
+
+    func makeNSView(context: Context) -> ProbeView {
+        let view = ProbeView()
+        view.onWindow = configure
+        return view
+    }
+
+    func updateNSView(_ nsView: ProbeView, context: Context) {}
+
+    final class ProbeView: NSView {
+        var onWindow: ((NSWindow) -> Void)?
+        private var configured = false
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            guard let window, !configured else { return }
+            configured = true
+            DispatchQueue.main.async { [weak self] in
+                self?.onWindow?(window)
+            }
         }
     }
 }

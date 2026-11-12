@@ -26,6 +26,11 @@ final class AppModel {
     var presentImporter = false
     var showOnboarding = false
 
+    // MARK: Demo (screenshots)
+    let demoScenario = ProcessInfo.processInfo.environment["IPABEAM_DEMO"]
+    var isDemo: Bool { demoScenario != nil }
+    var forceDropTargeted = false
+
     // MARK: Install
     var job: InstallJob?
     var history: [InstallJob] = []
@@ -100,6 +105,7 @@ final class AppModel {
             recents = decoded
         }
         showOnboarding = !defaults.bool(forKey: Keys.onboarding)
+            && ProcessInfo.processInfo.environment["IPABEAM_DEMO"] == nil
     }
 
     // MARK: - Lifecycle
@@ -107,11 +113,32 @@ final class AppModel {
     func start() async {
         guard !started else { return }
         started = true
+        if let demoScenario {
+            loadDemo(demoScenario)
+            return
+        }
         await reloadTools()
         async let signing: Void = reloadSigningAssets()
         await refreshDevices()
         await signing
         startRefreshLoop()
+    }
+
+    func configure(window: NSWindow) {
+        window.isMovableByWindowBackground = true
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
+        window.backgroundColor = NSColor(red: 0.02, green: 0.022, blue: 0.055, alpha: 1)
+
+        guard isDemo else { return }
+        window.setContentSize(NSSize(width: 1440, height: 900))
+        window.center()
+        if let path = ProcessInfo.processInfo.environment["IPABEAM_WINDOW_FILE"] {
+            let number = window.windowNumber
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                try? String(number).write(toFile: path, atomically: true, encoding: .utf8)
+            }
+        }
     }
 
     func reloadTools() async {
@@ -224,6 +251,7 @@ final class AppModel {
     }
 
     private func saveRecents() {
+        guard !isDemo else { return }
         if let data = try? JSONEncoder().encode(recents) {
             defaults.set(data, forKey: Keys.recents)
         }

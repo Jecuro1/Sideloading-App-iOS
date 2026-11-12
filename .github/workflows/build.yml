@@ -25,3 +25,13 @@ jobs:
           name: IPA-Beam-macOS
           path: build/IPA-Beam.zip
           if-no-files-found: error
+
+      - name: Render screenshots (demo mode)
+        run: ./Scripts/screenshots.sh
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: IPA-Beam-Screenshots
+          path: screenshots/
+          if-no-files-found: warn

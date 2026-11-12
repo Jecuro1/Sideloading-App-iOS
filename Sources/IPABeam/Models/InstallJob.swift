@@ -107,7 +107,7 @@ final class InstallJob: Identifiable {
 
     func begin(_ step: Step) {
         stepStates[step] = .running
-        append("▸ \(step.title)", kind: .step)
+        append(step.title, kind: .step)
     }
 
     func complete(_ step: Step) {
@@ -123,7 +123,7 @@ final class InstallJob: Identifiable {
         installProgress = 1
         state = .succeeded
         finishedAt = Date()
-        append("✓ \(appName) wurde erfolgreich auf \(deviceName) installiert.", kind: .success)
+        append("\(appName) wurde erfolgreich auf \(deviceName) installiert.", kind: .success)
     }
 
     func fail(_ message: String) {

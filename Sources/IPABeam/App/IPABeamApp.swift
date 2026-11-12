@@ -10,10 +10,10 @@ struct IPABeamApp: App {
         WindowGroup("IPA Beam") {
             ContentView()
                 .environment(model)
-                .frame(minWidth: 960, minHeight: 660)
+                .frame(minWidth: 1200, minHeight: 780)
         }
-        .windowToolbarStyle(.unified(showsTitle: false))
-        .defaultSize(width: 1120, height: 760)
+        .windowStyle(.hiddenTitleBar)
+        .defaultSize(width: 1440, height: 900)
         .commands {
             CommandGroup(replacing: .newItem) {
                 Button("IPA öffnen …") { model.presentImporter = true }
@@ -37,13 +37,15 @@ struct IPABeamApp: App {
         Settings {
             SettingsView()
                 .environment(model)
+                .preferredColorScheme(.dark)
         }
     }
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Needed when launched via `swift run` (no app bundle) so the window comes to front.
+        NSApp.appearance = NSAppearance(named: .darkAqua)
+        // Needed when launched without an app bundle (`swift run`) so the window comes to front.
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
     }
