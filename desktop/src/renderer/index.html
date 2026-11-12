@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'">
+  <title>IPA Beam</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="bg"></canvas>
+  <div class="vignette"></div>
+
+  <div id="app">
+    <header class="topbar drag">
+      <div class="brand">
+        <div class="logo" data-icon="logo"></div>
+        <span class="brand-ipa">IPA</span><span class="brand-beam">Beam</span>
+      </div>
+      <div class="conn-summary" id="connSummary"></div>
+      <div class="top-actions no-drag">
+        <button class="icon-btn" id="btnOpen" title="IPA öffnen (Strg/⌘+O)" data-icon="plus"></button>
+        <button class="icon-btn" id="btnRefresh" title="Geräte aktualisieren" data-icon="refresh"></button>
+        <button class="icon-btn" id="btnHelp" title="Einrichtungshilfe" data-icon="help"></button>
+        <button class="icon-btn" id="btnSettings" title="Einstellungen" data-icon="settings"></button>
+      </div>
+    </header>
+
+    <main class="columns">
+      <aside class="panel glass" id="leftPanel"></aside>
+
+      <section class="stage" id="stage">
+        <div class="payload" id="payload">
+          <canvas class="beam" id="beam" width="160" height="300"></canvas>
+          <div class="float-icon" id="floatIcon"></div>
+        </div>
+        <div class="phone-area">
+          <div class="phone-glow" id="phoneGlow"></div>
+          <div class="phone" id="phone">
+            <span class="side-btn s1"></span><span class="side-btn s2"></span>
+            <span class="side-btn s3"></span><span class="side-btn s4"></span>
+            <div class="screen" id="screen">
+              <div class="wallpaper"></div>
+              <div class="statusbar"><span>9:41</span><span class="sb-icons" data-icon="statusbar"></span></div>
+              <div class="home" id="home"></div>
+              <div class="dock" id="dock"></div>
+              <div class="screen-overlay" id="screenOverlay"></div>
+            </div>
+            <div class="island"><span></span></div>
+            <div class="glare"></div>
+          </div>
+        </div>
+        <div class="stage-footer" id="stageFooter"></div>
+      </section>
+
+      <aside class="inspector" id="rightPanel"></aside>
+    </main>
+  </div>
+
+  <div class="drop-overlay" id="dropOverlay">
+    <div class="drop-frame"></div>
+    <div class="drop-content">
+      <div class="drop-rings"><span></span><span></span><span></span></div>
+      <div class="drop-orb" data-icon="arrowDown"></div>
+      <h1>Loslassen zum Beamen</h1>
+      <p>.ipa wird sofort analysiert</p>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal"></div>
+
+  <script src="icons.js"></script>
+  <script src="background.js"></script>
+  <script src="mock.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

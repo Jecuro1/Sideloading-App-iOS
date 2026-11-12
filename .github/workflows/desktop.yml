@@ -1,0 +1,84 @@
+name: Build Desktop (Windows + macOS)
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: win
+            zsign_pattern: '*indows*'
+          - os: macos-15
+            target: mac
+            zsign_pattern: '*ac*'
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Bundle zsign (optional, used for re-signing)
+        continue-on-error: true
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view --repo zhlynn/zsign --json tagName,assets --jq '.tagName, (.assets[].name)'
+          mkdir -p ../zsign-dl
+          gh release download --repo zhlynn/zsign --pattern '${{ matrix.zsign_pattern }}' --dir ../zsign-dl --clobber
+          ls -la ../zsign-dl
+          for f in ../zsign-dl/*; do
+            case "$f" in
+              *.zip) unzip -o "$f" -d ../zsign-dl/x ;;
+              *.tar.gz|*.tgz) mkdir -p ../zsign-dl/x && tar xzf "$f" -C ../zsign-dl/x ;;
+            esac
+          done
+          if [ "${{ matrix.target }}" = "win" ]; then
+            found=$(find ../zsign-dl -iname 'zsign*.exe' | head -1)
+            [ -n "$found" ] && cp "$found" resources/bin/win/zsign.exe
+            # ship DLLs that may sit next to the exe
+            [ -n "$found" ] && find "$(dirname "$found")" -maxdepth 1 -iname '*.dll' -exec cp {} resources/bin/win/ \;
+          else
+            found=$(find ../zsign-dl -type f -iname 'zsign*' ! -name '*.zip' ! -name '*.gz' | head -1)
+            [ -n "$found" ] && cp "$found" resources/bin/mac/zsign && chmod +x resources/bin/mac/zsign
+          fi
+          ls -la resources/bin/${{ matrix.target }}
+
+      - name: Build app
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run dist:${{ matrix.target }}
+
+      - name: Upload Windows build
+        if: matrix.target == 'win'
+        uses: actions/upload-artifact@v4
+        with:
+          name: IPA-Beam-Windows
+          path: |
+            desktop/dist/*.exe
+          if-no-files-found: error
+
+      - name: Upload macOS build
+        if: matrix.target == 'mac'
+        uses: actions/upload-artifact@v4
+        with:
+          name: IPA-Beam-Desktop-macOS
+          path: |
+            desktop/dist/*.dmg
+          if-no-files-found: error

@@ -1,77 +1,90 @@
 <p align="center">
-  <img src="Resources/AppIcon-1024.png" width="160" alt="IPA Beam Icon">
+  <img src="Resources/AppIcon-1024.png" width="150" alt="IPA Beam Icon">
 </p>
 
 <h1 align="center">IPA Beam</h1>
-<p align="center"><b>Moderne macOS‑App zum Sideloaden von .ipa‑Dateien aufs iPhone – per USB‑C oder WLAN.</b></p>
+<p align="center"><b>IPA-Dateien per USB‑C oder WLAN aufs iPhone beamen – für Windows und macOS.</b></p>
+
+<p align="center">
+  <img src="docs/screenshots/desktop/installing.jpg" width="900" alt="IPA Beam – Installation läuft">
+</p>
 
 ---
 
-## ✨ Funktionen
+## 🖼️ Screenshots
 
-- **Drag & Drop:** `.ipa` ins Fenster ziehen, Doppelklick im Finder oder ⌘O.
-- **App‑Vorschau:** Icon, Name, Bundle‑ID, Version, Größe, minimale iOS‑Version – ohne die IPA komplett zu entpacken.
-- **USB‑C & WLAN:** Geräte werden automatisch erkannt (alle 4 s) und mit Verbindungsart angezeigt.
-- **Zwei Installationswege:**
-  - **Apple `devicectl`** (Xcode 15+): Apples offizieller CoreDevice‑Weg, USB und WLAN.
-  - **libimobiledevice** (`ideviceinstaller`): Alternative ohne Xcode, ebenfalls USB und WLAN.
-- **Neu signieren mit der eigenen Apple‑ID:** Zertifikate aus dem Schlüsselbund und Provisioning‑Profile von Xcode werden automatisch gefunden. Bundle‑ID‑Anpassung, Entfernen von Erweiterungen, Signatur aller Frameworks/Extensions.
-- **Live‑Fortschritt:** Fortschrittsring, Schritt‑Anzeige (Vorbereiten → Signieren → Installieren) und ausklappbares Protokoll.
-- **Verständliche Fehler:** Typische iOS‑Fehler (Entwicklermodus aus, falsches Profil, verschlüsselte IPA …) werden mit Lösungstipp angezeigt.
-- **Zuletzt verwendet & Verlauf** in der Seitenleiste, Einrichtungsassistent beim ersten Start.
+| Bereit | App wird gebeamt |
+|---|---|
+| ![Bereit](docs/screenshots/desktop/ready.jpg) | ![Installation](docs/screenshots/desktop/installing.jpg) |
+| **Installiert** | **Drag & Drop** |
+| ![Erfolg](docs/screenshots/desktop/success.jpg) | ![Drop](docs/screenshots/desktop/drop.jpg) |
 
-## 📋 Voraussetzungen
+Native macOS-Version (SwiftUI):
 
 | | |
 |---|---|
-| Mac | macOS 14 Sonoma oder neuer (Apple Silicon oder Intel) |
-| iPhone | iOS 16+ empfohlen (iOS 17+ für WLAN über `devicectl`) |
-| Werkzeuge | **Xcode** (empfohlen, aus dem Mac App Store) **und/oder** `brew install libimobiledevice ideviceinstaller` |
+| ![macOS Bereit](docs/screenshots/macos/ready.jpg) | ![macOS Erfolg](docs/screenshots/macos/success.jpg) |
 
-## 🚀 Installation
+## 📦 Zwei Versionen
 
-### Fertige App (empfohlen)
-1. Im GitHub‑Repo unter **Actions → Build macOS App** den neuesten Lauf öffnen und das Artefakt **IPA-Beam-macOS** herunterladen.
-2. `IPA-Beam.zip` entpacken und **IPA Beam.app** in den Ordner *Programme* ziehen.
-3. Die App ist nicht notarisiert – beim ersten Start **Rechtsklick → Öffnen** wählen
-   (oder im Terminal: `xattr -dr com.apple.quarantine "/Applications/IPA Beam.app"`).
+| | **IPA Beam Desktop** | **IPA Beam für Mac (nativ)** |
+|---|---|---|
+| Plattform | **Windows 10/11** und macOS | macOS 14+ |
+| Technik | Electron, Ordner [`desktop/`](desktop) | SwiftUI, Ordner [`Sources/`](Sources) |
+| iPhone-Verbindung | Apple-Gerätedienst (usbmuxd) direkt – **USB‑C & WLAN** | Apple `devicectl` (Xcode) oder libimobiledevice – **USB‑C & WLAN** |
+| Signieren | Zertifikat **.p12** + **.mobileprovision** (via zsign) | Zertifikat aus dem Schlüsselbund + Profil (via codesign) |
+| Download | Actions → **Build Desktop** → `IPA-Beam-Windows` / `IPA-Beam-Desktop-macOS` | Actions → **Build macOS App** → `IPA-Beam-macOS` |
 
-### Selbst bauen
+## ✨ Funktionen
+
+- **Drag & Drop** einer `.ipa` irgendwo ins Fenster, Doppelklick im Explorer/Finder oder Strg/⌘+O
+- **3D-iPhone in der Mitte**, das der Maus folgt – die App wird per Lichtstrahl „hineingebeamt“, Fortschritt wie beim App‑Store‑Download direkt auf dem Homescreen
+- **Automatische Geräteerkennung** über USB‑C und WLAN mit Verbindungs-Badge
+- **App-Vorschau**: Icon, Name, Bundle‑ID, Version, Größe, minimale iOS‑Version (ohne Entpacken)
+- **Neu signieren** mit eigenem Zertifikat & Profil, Prüfung ob dein iPhone im Profil steht
+- **Live-Fortschritt**: Schritt-Timeline + Terminal‑Protokoll, verständliche Fehlermeldungen mit Lösungstipp
+- **Bibliothek & Verlauf** der zuletzt verwendeten IPAs und Installationen
+
+## 🪟 Windows – Einrichtung
+
+1. **„Apple Devices“** aus dem Microsoft Store installieren (alternativ iTunes). Das liefert den Apple‑Gerätedienst, über den IPA Beam mit dem iPhone spricht.
+2. `IPA-Beam-Setup-x.y.z.exe` (Installer) oder `IPA-Beam-Portable-x.y.z.exe` starten. Da die App nicht signiert ist, zeigt Windows evtl. „Der Computer wurde durch Windows geschützt“ → **Weitere Informationen → Trotzdem ausführen**.
+3. iPhone per USB‑C anschließen, entsperren, **„Vertrauen“** tippen.
+4. Auf dem iPhone **Entwicklermodus** aktivieren (Einstellungen → Datenschutz & Sicherheit).
+5. **WLAN:** In „Apple Devices“ beim iPhone **„Dieses iPhone im WLAN anzeigen“** aktivieren – danach geht’s kabellos.
+
+## 🍎 macOS – Einrichtung
+
+- **Desktop-Version:** `.dmg` öffnen, App in *Programme* ziehen, beim ersten Start **Rechtsklick → Öffnen**.
+- **Native Version:** `IPA-Beam.zip` entpacken, ebenso **Rechtsklick → Öffnen**. Nutzt Xcode (`devicectl`) oder `brew install libimobiledevice ideviceinstaller`.
+- WLAN: Im Finder beim iPhone **„Dieses iPhone im WLAN anzeigen“** aktivieren (bzw. in Xcode „Connect via network“).
+
+## ✍️ Signieren
+
+iOS installiert nur Apps, die für dein Gerät signiert sind. Ist deine IPA das nicht:
+
+- **Desktop (Windows/Mac):** Unter „Signierung“ dein Zertifikat als **.p12** (inkl. Passwort) und ein passendes **.mobileprovision** wählen. Das Passwort wird verschlüsselt im System-Schlüsselspeicher abgelegt. Optional eigene Bundle‑ID.
+- **Native Mac-App:** In Xcode mit der Apple‑ID anmelden, einmal ein Projekt aufs iPhone starten – Zertifikat & Profil werden automatisch gefunden.
+
+> Kostenlose Apple‑ID: Apps laufen 7 Tage. Mit bezahltem Developer Account (Wildcard‑Profil) 1 Jahr.
+
+## 🛠️ Selbst bauen
+
 ```bash
-git clone <repo-url> && cd Sideloading-App-iOS
-./Scripts/build-app.sh          # erzeugt build/IPA Beam.app
-open "build/IPA Beam.app"
-```
-Zum Entwickeln: `open Package.swift` (öffnet das Projekt in Xcode) oder `swift run`.
+# Desktop (Windows/macOS)
+cd desktop
+npm install
+npm start                 # starten
+npm run dist:win          # Windows-Installer + Portable (auf Windows)
+npm run dist:mac          # macOS .dmg (auf macOS)
+npm run screenshots       # Demo-Screenshots rendern
 
-## 📱 Einrichtung des iPhones
-
-1. **Per USB‑C verbinden**, iPhone entsperren und **„Diesem Computer vertrauen“** tippen.
-2. **Entwicklermodus aktivieren:** Einstellungen → Datenschutz & Sicherheit → Entwicklermodus → Ein (iPhone startet neu).
-3. **WLAN (optional):** Einmal per Kabel koppeln, dann in Xcode → *Window → Devices and Simulators* → **„Connect via network“** – oder im Finder **„Dieses iPhone im WLAN anzeigen“**. Mac und iPhone müssen im selben Netz sein.
-
-## ✍️ Signieren mit deiner Apple‑ID
-
-iOS installiert nur Apps, die für dein Gerät signiert sind. Wenn deine IPA nicht bereits passend signiert ist:
-
-1. Xcode → *Settings → Accounts* → mit deiner Apple‑ID anmelden.
-2. Einmal ein beliebiges (leeres) iOS‑Projekt mit deinem Team auf dem iPhone starten – dadurch erzeugt Xcode Zertifikat **und** Provisioning‑Profil.
-3. In IPA Beam **„Neu signieren“** einschalten, Zertifikat und Profil auswählen (werden automatisch vorgeschlagen).
-
-> **Kostenlose Apple‑ID:** Apps laufen 7 Tage, max. 3 gleichzeitig, keine Wildcard‑App‑IDs → „Erweiterungen entfernen“ aktiviert lassen und ggf. eine **eigene Bundle‑ID** passend zum Profil eintragen.
-> **Bezahlter Developer Account:** Ein Wildcard‑Profil (`TEAMID.*`) funktioniert für beliebige Apps, 1 Jahr gültig.
-
-## 🧱 Aufbau
-
-```
-Sources/IPABeam
-├── App/            App-Einstieg, AppModel (Zustand, Installations-Pipeline)
-├── Models/         Device, IPAInfo, InstallJob
-├── Services/       ProcessRunner, devicectl/libimobiledevice, IPAInspector, SigningService
-└── Views/          SwiftUI-Oberfläche (Sidebar, Hauptbereich, Fortschritt, Einstellungen, Onboarding)
+# Native macOS-App
+./Scripts/build-app.sh    # erzeugt build/IPA Beam.app
 ```
 
 ## ⚠️ Hinweise
 
-- **Verschlüsselte IPAs** (direkt aus dem App Store gezogen) lassen sich nicht installieren – nur entschlüsselte bzw. selbst gebaute IPAs.
+- **Verschlüsselte IPAs** (direkt aus dem App Store) lassen sich nicht installieren.
 - Nutze die App nur für Apps, die du rechtmäßig verwenden darfst (eigene Apps, Open Source, Testbuilds).
+- Verwendete Open-Source-Komponenten: [appium-ios-device](https://github.com/appium/appium-ios-device) (Apache‑2.0), [zsign](https://github.com/zhlynn/zsign), Schrift [Inter](https://rsms.me/inter/) (OFL).

@@ -1,0 +1,85 @@
+{
+  "name": "ipa-beam-desktop",
+  "productName": "IPA Beam",
+  "version": "1.0.0",
+  "description": "IPA-Dateien per USB-C oder WLAN aufs iPhone sideloaden – für Windows und macOS.",
+  "main": "main.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "demo": "electron . --demo=installing",
+    "dist:win": "electron-builder --win --publish never",
+    "dist:mac": "electron-builder --mac --universal --publish never",
+    "screenshots": "node scripts/screenshots.js"
+  },
+  "dependencies": {
+    "appium-ios-device": "3.1.24",
+    "bplist-parser": "0.3.2",
+    "plist": "3.1.0",
+    "yauzl": "3.4.0"
+  },
+  "devDependencies": {
+    "electron": "44.9.3",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "app.ipabeam.desktop",
+    "productName": "IPA Beam",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "package.json",
+      "!node_modules/sharp/**/*",
+      "!node_modules/@img/**/*",
+      "!**/*.map",
+      "!**/*.d.ts"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/bin/${os}",
+        "to": "bin",
+        "filter": [
+          "**/*",
+          "!.gitkeep"
+        ]
+      }
+    ],
+    "fileAssociations": [
+      {
+        "ext": "ipa",
+        "name": "iOS App",
+        "role": "Viewer"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "IPA-Beam-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "IPA-Beam-Portable-${version}.${ext}"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.developer-tools",
+      "icon": "build/icon.png",
+      "identity": null
+    }
+  }
+}
