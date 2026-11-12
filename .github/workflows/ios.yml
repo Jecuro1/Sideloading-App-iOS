@@ -14,6 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Fetch zsign sources
+        run: ./scripts/fetch-zsign.sh
+
       - name: Generate Xcode project
         run: |
           brew install xcodegen
@@ -25,7 +28,7 @@ jobs:
           xcodebuild -project IPABeam.xcodeproj -scheme IPABeam -sdk iphonesimulator \
             -configuration Debug -derivedDataPath build/sim \
             -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build \
-            | grep -E "error:|warning: .*IPABeam|BUILD" || true
+            | grep -E "error:|BUILD" || true
           test -d build/sim/Build/Products/Debug-iphonesimulator/IPABeam.app
 
       - name: Build unsigned IPA for iPhone
@@ -55,7 +58,7 @@ jobs:
           xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 --cellularBars 4 --wifiBars 3 || true
           xcrun simctl install "$UDID" build/sim/Build/Products/Debug-iphonesimulator/IPABeam.app
           mkdir -p ../screenshots-ios
-          for s in ready run library certs empty more; do
+          for s in ready run done sources library certs setup empty; do
             xcrun simctl terminate "$UDID" app.ipabeam.ios 2>/dev/null || true
             xcrun simctl launch "$UDID" app.ipabeam.ios -demo "$s"
             sleep 5

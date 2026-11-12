@@ -32,6 +32,33 @@ extension AppState {
         ]
         selectedAppID = apps.first?.id
         selectedSigningID = signingSets.first?.id
+        installReady = true
+        apps[1].installedAt = Date().addingTimeInterval(-86_400 * 2)
+        apps[1].expiresAt = Date().addingTimeInterval(86_400 * 5)
+        apps[2].installedAt = Date().addingTimeInterval(-86_400 * 6)
+        apps[2].expiresAt = Date().addingTimeInterval(86_400 * 1)
+
+        let sourceURL = URL(string: "https://apps.example.com/source.json")!
+        func sourceApp(_ name: String, _ bundleID: String, _ developer: String, _ version: String,
+                       _ size: Int64, _ icon: Data?, _ subtitle: String) -> SourceApp {
+            SourceApp(sourceURL: sourceURL, name: name, bundleID: bundleID, developer: developer, subtitle: subtitle,
+                      iconURL: nil, iconData: icon,
+                      versions: [SourceVersion(version: version, date: "2026-11-10",
+                                               downloadURL: URL(string: "https://apps.example.com/\(bundleID).ipa")!,
+                                               size: size, notes: "Neue Funktionen und Fehlerbehebungen.")])
+        }
+        sources = [
+            AppSource(url: sourceURL, name: "Indie Apps", subtitle: "Apps von unabhängigen Entwicklern",
+                      iconURL: nil, apps: [
+                        sourceApp("Nebula Notes", "com.example.nebulanotes", "Nebula Labs", "2.5.0", 49_100_000, nebula, "Notizen mit KI-Suche"),
+                        sourceApp("Orbit Player", "io.orbit.player", "Orbit", "5.3", 62_400_000, apps[2].iconData, "Musik & Podcasts"),
+                        sourceApp("Pixel Forge", "dev.alex.pixelforge", "Alex", "1.0.3", 22_400_000, apps[1].iconData, "Pixel-Art Editor"),
+                        sourceApp("Cosmo Weather", "app.cosmo.weather", "Cosmo", "4.2", 31_000_000,
+                                  Self.demoIcon(hue: 0.58, symbol: "cloud.sun.fill"), "Wetter mit Radar"),
+                        sourceApp("Lumen Reader", "io.lumen.reader", "Lumen", "2.1", 27_800_000,
+                                  Self.demoIcon(hue: 0.08, symbol: "book.fill"), "E-Books & Comics")
+                      ], lastUpdated: Date())
+        ]
 
         switch scenario {
         case "empty":
@@ -43,9 +70,21 @@ extension AppState {
             tab = .certificates
         case "more":
             tab = .settings
+        case "setup":
+            tab = .settings
+            installReady = false
+        case "sources":
+            tab = .sources
+            downloads["io.orbit.player"] = 0.62
         case "run":
-            run = BeamRun(steps: [.certificate: .done, .profile: .done, .sign: .running, .install: .pending],
+            run = BeamRun(appID: apps[0].id,
+                          steps: [.certificate: .done, .profile: .done, .sign: .done, .install: .running],
                           message: nil, finished: false)
+        case "done":
+            run = BeamRun(appID: apps[0].id,
+                          steps: [.certificate: .done, .profile: .done, .sign: .done, .install: .done],
+                          message: "Bestätige auf dem iPhone „Installieren“ – die App erscheint dann auf dem Homescreen.",
+                          finished: true)
         default:
             break
         }

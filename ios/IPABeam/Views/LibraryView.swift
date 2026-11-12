@@ -40,6 +40,10 @@ private struct LibraryTile: View {
     let selected: Bool
     @State private var confirmDelete = false
 
+    private var hasUpdate: Bool {
+        state.availableUpdates.contains { $0.app.id == app.id }
+    }
+
     var body: some View {
         Button {
             withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
@@ -51,6 +55,14 @@ private struct LibraryTile: View {
             VStack(spacing: 10) {
                 AppIconView(data: app.iconData, size: 70)
                     .shadow(color: (selected ? Theme.cyan : Theme.indigo).opacity(0.6), radius: 14)
+                    .overlay(alignment: .topTrailing) {
+                        if hasUpdate {
+                            Image(systemName: "arrow.down.circle.fill")
+                                .font(.system(size: 22))
+                                .foregroundStyle(.white, Theme.success)
+                                .offset(x: 8, y: -8)
+                        }
+                    }
                 VStack(spacing: 2) {
                     Text(app.name)
                         .font(.system(size: 14, weight: .bold, design: .rounded))
@@ -58,9 +70,16 @@ private struct LibraryTile: View {
                     Text(app.versionLabel)
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(.white.opacity(0.5))
-                    Text(app.formattedSize)
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.35))
+                    if let expires = app.expiresAt {
+                        let days = max(0, Calendar.current.dateComponents([.day], from: Date(), to: expires).day ?? 0)
+                        Text(days == 0 ? "Abgelaufen" : "Noch \(days) Tage")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(days < 3 ? Theme.warning : Theme.success)
+                    } else {
+                        Text(app.formattedSize)
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.35))
+                    }
                 }
             }
             .frame(maxWidth: .infinity)

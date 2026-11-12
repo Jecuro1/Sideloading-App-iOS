@@ -8,6 +8,8 @@ packages:
   ZIPFoundation:
     url: https://github.com/weichsel/ZIPFoundation
     exactVersion: 0.9.19
+  ZSignKit:
+    path: Packages/ZSignKit
 targets:
   IPABeam:
     type: application
@@ -17,6 +19,7 @@ targets:
     scheme: {}
     dependencies:
       - package: ZIPFoundation
+      - package: ZSignKit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.ipabeam.ios

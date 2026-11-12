@@ -13,6 +13,9 @@ struct LibraryApp: Identifiable, Codable, Hashable {
     var hasExtensions: Bool
     var iconData: Data?
     var importedAt: Date
+    /// Set after a successful on-device install (used for the 7-day refresh reminder).
+    var installedAt: Date?
+    var expiresAt: Date?
 
     var versionLabel: String {
         build.isEmpty || build == version ? "v\(version)" : "v\(version) (\(build))"
@@ -95,4 +98,11 @@ enum BeamStep: String, CaseIterable, Identifiable {
 
 enum StepState: Equatable {
     case pending, running, done, failed, upcoming
+}
+
+struct AppUpdate: Identifiable, Hashable {
+    var id: UUID { app.id }
+    var app: LibraryApp
+    var source: SourceApp
+    var version: SourceVersion
 }

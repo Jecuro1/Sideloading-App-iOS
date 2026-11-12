@@ -9,6 +9,7 @@ extension UTType {
 
 struct RootView: View {
     @Environment(AppState.self) private var state
+    @Environment(\.scenePhase) private var scenePhase
     @State private var showImporter = false
 
     var body: some View {
@@ -21,6 +22,7 @@ struct RootView: View {
                 switch state.tab {
                 case .beam: BeamView(showImporter: $showImporter)
                 case .library: LibraryView(showImporter: $showImporter)
+                case .sources: SourcesView()
                 case .certificates: CertificatesView()
                 case .settings: MoreView()
                 }
@@ -28,8 +30,8 @@ struct RootView: View {
             .transition(.opacity)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            TabBar(selection: $state.tab)
-                .padding(.horizontal, 22)
+            TabBar(selection: $state.tab, badge: state.availableUpdates.count)
+                .padding(.horizontal, 14)
                 .padding(.bottom, 6)
 
             if let toast = state.toast {
@@ -51,7 +53,14 @@ struct RootView: View {
                 state.importIPA(from: url)
             }
         }
-        .alert("Import fehlgeschlagen", isPresented: Binding(
+        .task {
+            await state.onLaunch()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            // Coming back from Settings after trusting the profile
+            if phase == .active { Task { await state.checkInstallSetup() } }
+        }
+        .alert("Hinweis", isPresented: Binding(
             get: { state.importError != nil },
             set: { if !$0 { state.importError = nil } }
         )) {
@@ -66,22 +75,35 @@ struct RootView: View {
 
 private struct TabBar: View {
     @Binding var selection: Tab
+    var badge: Int = 0
     @Namespace private var namespace
 
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 2) {
             ForEach(Tab.allCases) { tab in
                 Button {
                     selection = tab
                 } label: {
                     VStack(spacing: 3) {
                         Image(systemName: tab.symbol)
-                            .font(.system(size: 18, weight: .semibold))
+                            .font(.system(size: 17, weight: .semibold))
                             .symbolEffect(.bounce, value: selection == tab)
                         Text(tab.title)
-                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .font(.system(size: 9, weight: .bold, design: .rounded))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                     }
                     .foregroundStyle(selection == tab ? Color.white : Color.white.opacity(0.5))
+                    .overlay(alignment: .topTrailing) {
+                        if tab == .sources, badge > 0 {
+                            Text("\(badge)")
+                                .font(.system(size: 10, weight: .black, design: .rounded))
+                                .foregroundStyle(.white)
+                                .frame(minWidth: 17, minHeight: 17)
+                                .background(Circle().fill(Theme.danger))
+                                .offset(x: -6, y: 4)
+                        }
+                    }
                     .frame(maxWidth: .infinity)
                     .frame(height: 54)
                     .background {

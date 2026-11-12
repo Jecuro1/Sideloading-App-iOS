@@ -11,11 +11,15 @@ struct BeamView: View {
                 if let app = state.selectedApp {
                     HeroApp(app: app)
                     SigningSummary()
-                    if let run = state.run {
+                    if let run = state.run, run.appID == app.id {
                         RunCard(run: run)
                             .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
                     actionButton
+                    if !state.availableUpdates.isEmpty {
+                        UpdatesCard()
+                            .padding(.top, 6)
+                    }
                 } else {
                     ImportCard(showImporter: $showImporter)
                 }
@@ -59,21 +63,31 @@ struct BeamView: View {
 
     @ViewBuilder
     private var actionButton: some View {
-        let running = state.run.map { !$0.finished } ?? false
+        let running = state.isBeaming
         Button {
             state.beam()
         } label: {
-            Label(running ? "Läuft …" : "Signieren & beamen", systemImage: "bolt.fill")
+            Label(running ? "Läuft …" : (state.selectedApp?.installedAt == nil ? "Signieren & installieren" : "Erneut installieren"),
+                  systemImage: "bolt.fill")
         }
         .buttonStyle(BeamButtonStyle())
         .disabled(state.selectedSigning == nil || running)
         .padding(.top, 4)
 
-        Text(state.selectedSigning == nil
-             ? "Füge unter „Zertifikate“ dein .p12 + Profil hinzu."
-             : "Prüft Zertifikat & Profil direkt auf dem iPhone.")
+        Text(hint)
             .font(.system(size: 12, weight: .medium))
             .foregroundStyle(.white.opacity(0.5))
+            .multilineTextAlignment(.center)
+    }
+
+    private var hint: String {
+        if state.selectedSigning == nil { return "Füge unter „Zertifikate“ dein .p12 + Profil hinzu." }
+        if state.installReady == false { return "Einmalig nötig: „Mehr → Installation einrichten“." }
+        if let expires = state.selectedApp?.expiresAt {
+            let days = max(0, Calendar.current.dateComponents([.day], from: Date(), to: expires).day ?? 0)
+            return "Signatur gültig noch \(days) Tage – danach einfach erneut installieren."
+        }
+        return "Signiert und installiert direkt auf diesem iPhone."
     }
 }
 
@@ -108,7 +122,7 @@ private struct ImportCard: View {
             VStack(spacing: 6) {
                 Text("IPA importieren")
                     .font(.system(size: 26, weight: .black, design: .rounded))
-                Text("Aus der Dateien-App wählen – oder in Safari, Mail oder AirDrop auf „Öffnen in IPA Beam“ tippen.")
+                Text("Aus der Dateien-App wählen, in Safari/AirDrop „Öffnen in IPA Beam“ tippen – oder Apps aus einer Quelle laden.")
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(.white.opacity(0.6))
                     .multilineTextAlignment(.center)
@@ -234,6 +248,7 @@ private struct SigningSummary: View {
 // MARK: - Run progress
 
 private struct RunCard: View {
+    @Environment(AppState.self) private var state
     let run: BeamRun
 
     var body: some View {
@@ -271,8 +286,22 @@ private struct RunCard: View {
             if let message = run.message {
                 Text(message)
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(run.steps.values.contains(.failed) ? Theme.danger : Color.white.opacity(0.8))
+                    .foregroundStyle(run.steps.values.contains(.failed) ? Theme.danger : Color.white.opacity(0.85))
                     .fixedSize(horizontal: false, vertical: true)
+                    .textSelection(.enabled)
+            }
+            if run.needsSetup {
+                Button {
+                    state.tab = .settings
+                } label: {
+                    Label("Installation einrichten", systemImage: "wrench.and.screwdriver.fill")
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(Capsule().fill(Theme.accent))
+                }
+                .buttonStyle(PressableStyle())
             }
         }
         .glassCard(padding: 16, cornerRadius: 22)
