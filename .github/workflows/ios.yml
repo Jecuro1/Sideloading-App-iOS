@@ -1,0 +1,77 @@
+name: Build iOS App
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    defaults:
+      run:
+        working-directory: ios
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Build for simulator
+        run: |
+          set -o pipefail
+          xcodebuild -project IPABeam.xcodeproj -scheme IPABeam -sdk iphonesimulator \
+            -configuration Debug -derivedDataPath build/sim \
+            -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build \
+            | grep -E "error:|warning: .*IPABeam|BUILD" || true
+          test -d build/sim/Build/Products/Debug-iphonesimulator/IPABeam.app
+
+      - name: Build unsigned IPA for iPhone
+        run: |
+          set -o pipefail
+          xcodebuild -project IPABeam.xcodeproj -scheme IPABeam -sdk iphoneos \
+            -configuration Release -derivedDataPath build/dev \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build \
+            | grep -E "error:|BUILD" || true
+          mkdir -p build/ipa/Payload
+          cp -R build/dev/Build/Products/Release-iphoneos/IPABeam.app build/ipa/Payload/
+          (cd build/ipa && zip -qry ../IPABeam-iOS-unsigned.ipa Payload)
+          ls -la build/*.ipa
+
+      - name: Screenshots in the iPhone simulator
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c "
+          import sys, json
+          d = json.load(sys.stdin)['devices']
+          phones = [x for k, v in d.items() if 'iOS' in k for x in v if x['name'].startswith('iPhone')]
+          pro = [x for x in phones if x['name'].endswith('Pro')]
+          print((pro or phones)[-1]['udid'])")
+          echo "Simulator: $UDID"
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 --cellularBars 4 --wifiBars 3 || true
+          xcrun simctl install "$UDID" build/sim/Build/Products/Debug-iphonesimulator/IPABeam.app
+          mkdir -p ../screenshots-ios
+          for s in ready run library certs empty more; do
+            xcrun simctl terminate "$UDID" app.ipabeam.ios 2>/dev/null || true
+            xcrun simctl launch "$UDID" app.ipabeam.ios -demo "$s"
+            sleep 5
+            xcrun simctl io "$UDID" screenshot "../screenshots-ios/$s.png"
+          done
+          ls -la ../screenshots-ios
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: IPA-Beam-iOS-unsigned
+          path: ios/build/IPABeam-iOS-unsigned.ipa
+          if-no-files-found: error
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: IPA-Beam-iOS-Screenshots
+          path: screenshots-ios/
+          if-no-files-found: warn

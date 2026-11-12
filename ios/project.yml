@@ -1,0 +1,81 @@
+name: IPABeam
+options:
+  bundleIdPrefix: app.ipabeam
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+packages:
+  ZIPFoundation:
+    url: https://github.com/weichsel/ZIPFoundation
+    exactVersion: 0.9.19
+targets:
+  IPABeam:
+    type: application
+    platform: iOS
+    sources:
+      - path: IPABeam
+    scheme: {}
+    dependencies:
+      - package: ZIPFoundation
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.ipabeam.ios
+        PRODUCT_NAME: IPABeam
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        MARKETING_VERSION: 1.0.0
+        CURRENT_PROJECT_VERSION: 1
+        CODE_SIGN_STYLE: Automatic
+        ENABLE_PREVIEWS: YES
+    info:
+      path: IPABeam/Info.plist
+      properties:
+        CFBundleDisplayName: IPA Beam
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UILaunchScreen:
+          UIColorName: AccentColor
+        UIUserInterfaceStyle: Dark
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: iOS App
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Alternate
+            LSItemContentTypes:
+              - com.apple.itunes.ipa
+          - CFBundleTypeName: Zertifikat
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Alternate
+            LSItemContentTypes:
+              - com.rsa.pkcs-12
+          - CFBundleTypeName: Provisioning-Profil
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Alternate
+            LSItemContentTypes:
+              - com.apple.mobileprovision
+        UTImportedTypeDeclarations:
+          - UTTypeIdentifier: com.apple.itunes.ipa
+            UTTypeDescription: iOS App Archive
+            UTTypeConformsTo:
+              - public.zip-archive
+              - public.data
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - ipa
+          - UTTypeIdentifier: com.apple.mobileprovision
+            UTTypeDescription: Provisioning Profile
+            UTTypeConformsTo:
+              - public.data
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - mobileprovision
