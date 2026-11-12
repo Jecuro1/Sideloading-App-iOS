@@ -118,10 +118,10 @@ extension View {
 
 struct BeamButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
-        Body(configuration: configuration)
+        BeamBody(configuration: configuration)
     }
 
-    private struct Body: View {
+    private struct BeamBody: View {
         let configuration: ButtonStyleConfiguration
         @Environment(\.isEnabled) private var isEnabled
 

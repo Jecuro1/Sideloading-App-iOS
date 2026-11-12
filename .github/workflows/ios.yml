@@ -35,6 +35,7 @@ jobs:
             -configuration Release -derivedDataPath build/dev \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build \
             | grep -E "error:|BUILD" || true
+          test -d build/dev/Build/Products/Release-iphoneos/IPABeam.app
           mkdir -p build/ipa/Payload
           cp -R build/dev/Build/Products/Release-iphoneos/IPABeam.app build/ipa/Payload/
           (cd build/ipa && zip -qry ../IPABeam-iOS-unsigned.ipa Payload)
