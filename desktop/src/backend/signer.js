@@ -38,10 +38,11 @@ function profileIncludes(profile, udid) {
  * Re-signs an IPA with zsign (works on Windows and macOS).
  * The password is passed to zsign only and never written to the log.
  */
-async function signIpa({ zsign, input, output, p12, password, profile, bundleId, onLog, signal }) {
+async function signIpa({ zsign, input, output, p12, password, profile, bundleId, removeExtensions, onLog, signal }) {
   if (!zsign) throw new Error('zsign wurde nicht gefunden (Einstellungen → Signierung).');
   const args = ['-k', p12, '-p', password || '', '-m', profile, '-o', output, '-z', '1'];
   if (bundleId) args.push('-b', bundleId);
+  if (removeExtensions) args.push('-E', '-W');
   args.push(input);
 
   onLog(`zsign ${bundleId ? `-b ${bundleId} ` : ''}→ ${output.split(/[\\/]/).pop()}`);

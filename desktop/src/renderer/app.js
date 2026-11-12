@@ -560,6 +560,9 @@ function showSettings() {
       <button class="field" data-action="pick-p12">${icon('key')}<span class="v ${s.p12Path ? '' : 'ph'}">${esc(s.p12Path || 'Nicht gewählt')}</span></button>
       <span class="lbl">PROVISIONING-PROFIL</span>
       <button class="field" data-action="pick-profile">${icon('shield')}<span class="v ${s.profilePath ? '' : 'ph'}">${esc(s.profilePath || 'Nicht gewählt')}</span></button>
+      <span class="lbl">OPTIONEN</span>
+      <label class="field" style="cursor:pointer">${icon('puzzle')}<span class="v">App-Erweiterungen &amp; Watch-App entfernen (für kostenlose Apple‑IDs nötig)</span>
+        <span class="switch"><input type="checkbox" id="extToggle" ${s.removeExtensions !== false ? 'checked' : ''}><span></span></span></label>
       <span class="lbl">ZSIGN</span>
       <button class="field" data-action="pick-zsign">${icon('folder')}<span class="v ${t.zsign ? '' : 'ph'}">${esc(t.zsign || 'Nicht gefunden – Pfad zu zsign wählen …')}</span></button>
       <p class="muted" style="margin-top:6px">IPA Beam nutzt <code>zsign</code> zum Signieren. In den fertigen Builds ist es enthalten, sofern verfügbar; sonst hier den Pfad angeben.</p>
@@ -640,6 +643,7 @@ document.addEventListener('click', async (event) => {
 
 document.addEventListener('change', (event) => {
   if (event.target.id === 'signToggle') updateSettings({ signingEnabled: event.target.checked });
+  if (event.target.id === 'extToggle') updateSettings({ removeExtensions: event.target.checked });
   if (event.target.id === 'bundleInput') updateSettings({ bundleId: event.target.value.trim() });
   if (event.target.id === 'pwInput' && event.target.value) {
     const password = event.target.value;

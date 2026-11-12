@@ -12,6 +12,7 @@ const DEFAULTS = {
   profilePath: '',
   bundleId: '',
   zsignPath: '',
+  removeExtensions: true,
 };
 
 function file() {

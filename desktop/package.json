@@ -61,7 +61,8 @@
       "target": [
         "nsis",
         "portable"
-      ]
+      ],
+      "icon": "build/icon.ico"
     },
     "nsis": {
       "oneClick": false,
@@ -78,7 +79,9 @@
       ],
       "category": "public.app-category.developer-tools",
       "identity": null,
-      "x64ArchFiles": "Contents/Resources/bin/**"
+      "x64ArchFiles": "Contents/Resources/bin/**",
+      "icon": "build/icon.icns"
     }
-  }
+  },
+  "author": "IPA Beam"
 }

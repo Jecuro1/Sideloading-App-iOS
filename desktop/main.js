@@ -109,7 +109,7 @@ function registerIpc() {
   ipcMain.handle('settings:get', () => settingsStore.publicView(settings));
 
   ipcMain.handle('settings:set', (_e, patch) => {
-    const allowed = ['signingEnabled', 'p12Path', 'profilePath', 'bundleId', 'zsignPath'];
+    const allowed = ['signingEnabled', 'p12Path', 'profilePath', 'bundleId', 'zsignPath', 'removeExtensions'];
     for (const key of allowed) {
       if (patch && Object.prototype.hasOwnProperty.call(patch, key)) settings[key] = patch[key];
     }
@@ -185,6 +185,7 @@ function registerIpc() {
         password: settingsStore.getPassword(settings),
         profilePath: settings.profilePath,
         bundleId: settings.bundleId,
+        removeExtensions: settings.removeExtensions !== false,
       };
     }
 

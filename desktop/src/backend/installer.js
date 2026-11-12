@@ -112,6 +112,7 @@ async function runInstall({ ipa, device, signing, zsign, emit, signal }) {
         password: signing.password,
         profile: signing.profilePath,
         bundleId: signing.bundleId || null,
+        removeExtensions: signing.removeExtensions,
         onLog: log,
         signal,
       });
