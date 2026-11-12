@@ -50,6 +50,11 @@ extension AppModel {
         selectedProfileID = profiles.first?.id
         signingEnabled = true
 
+        history = [
+            demoFinishedJob(app: "Pixel Forge", device: "iPad Air", connection: .wifi),
+            demoFinishedJob(app: "Orbit Player", device: "iPhone von Alex", connection: .usb)
+        ]
+
         guard scenario != "idle", scenario != "idle-nodevice" else { return }
         if scenario == "drop" {
             forceDropTargeted = true
@@ -93,13 +98,20 @@ extension AppModel {
         case "success":
             job.append("App installed: com.example.nebulanotes")
             job.succeed()
-            history = [job]
+            history.insert(job, at: 0)
         case "failed":
             job.fail("„devicectl“ ist fehlgeschlagen (Code 1):\nThe operation couldn’t be completed. (Developer Mode disabled)\n\n💡 Aktiviere auf dem iPhone: Einstellungen → Datenschutz & Sicherheit → Entwicklermodus.")
         default:
             break
         }
         self.job = job
+    }
+
+    private func demoFinishedJob(app: String, device: String, connection: ConnectionType) -> InstallJob {
+        let job = InstallJob(appName: app, bundleID: "", deviceName: device, connection: connection)
+        job.skip(.sign)
+        job.succeed()
+        return job
     }
 
     private func demoRecent(name: String, bundleID: String, version: String, icon: Data?) -> RecentIPA {

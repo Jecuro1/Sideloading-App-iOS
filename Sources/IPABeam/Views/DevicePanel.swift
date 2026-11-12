@@ -70,6 +70,16 @@ struct DevicePanel: View {
                 .scrollIndicators(.never)
             }
 
+            if !model.history.isEmpty {
+                SectionLabel(title: "Verlauf", symbol: "clock.arrow.circlepath")
+                    .padding(.top, 10)
+                VStack(spacing: 6) {
+                    ForEach(model.history.prefix(4)) { job in
+                        HistoryRow(job: job)
+                    }
+                }
+            }
+
             Spacer(minLength: 0)
 
             ToolStatusFooter()
@@ -99,20 +109,20 @@ struct DeviceCard: View {
             }
             .frame(width: 40, height: 40)
 
-            VStack(alignment: .leading, spacing: 3) {
-                Text(device.name)
-                    .font(.system(size: 13, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
+                    Text(device.name)
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    Spacer(minLength: 4)
+                    ConnectionBadge(connection: device.connection)
+                }
                 Text(device.needsTrust ? "Vertrauen erforderlich" : (device.subtitle.isEmpty ? device.backend.title : device.subtitle))
                     .font(.system(size: 11))
                     .foregroundStyle(device.needsTrust ? AnyShapeStyle(Theme.warning) : AnyShapeStyle(Color.white.opacity(0.5)))
                     .lineLimit(1)
             }
-
-            Spacer(minLength: 4)
-
-            ConnectionBadge(connection: device.connection)
         }
         .padding(10)
         .background(
@@ -295,5 +305,32 @@ private struct ToolStatusFooter: View {
         }
         .font(.system(size: 10, weight: .semibold, design: .rounded))
         .help(ok ? "\(title) ist verfügbar" : "\(title) ist nicht installiert")
+    }
+}
+
+private struct HistoryRow: View {
+    let job: InstallJob
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: job.state == .succeeded ? "checkmark.circle.fill" : "xmark.octagon.fill")
+                .font(.system(size: 14))
+                .foregroundStyle(job.state == .succeeded ? Theme.success : Theme.danger)
+                .shadow(color: job.state == .succeeded ? Theme.success.opacity(0.6) : .clear, radius: 4)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(job.appName)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                Text("\(job.deviceName) · \(job.startedAt.formatted(date: .omitted, time: .shortened))")
+                    .font(.system(size: 10))
+                    .foregroundStyle(.white.opacity(0.45))
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 0)
+            ConnectionBadge(connection: job.connection)
+        }
+        .padding(8)
+        .background(Color.white.opacity(0.03), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }

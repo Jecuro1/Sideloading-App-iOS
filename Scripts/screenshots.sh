@@ -22,7 +22,16 @@ for scenario in ${SCENARIOS:-ready installing success drop idle failed}; do
   sleep 2
 
   if [ -s "$WINFILE" ]; then
-    screencapture -x -o -l"$(cat "$WINFILE")" "$OUT/$scenario.png" || echo "window capture failed for $scenario"
+    # Animations redraw constantly; take a few shots and keep the most detailed (largest) one.
+    best=""
+    for n in 1 2 3 4; do
+      shot="$OUT/.$scenario-$n.png"
+      screencapture -x -o -l"$(cat "$WINFILE")" "$shot" || continue
+      if [ -z "$best" ] || [ "$(stat -f%z "$shot")" -gt "$(stat -f%z "$best")" ]; then best="$shot"; fi
+      sleep 0.8
+    done
+    [ -n "$best" ] && mv "$best" "$OUT/$scenario.png"
+    rm -f "$OUT"/.$scenario-*.png
   else
     echo "no window id for $scenario"
   fi

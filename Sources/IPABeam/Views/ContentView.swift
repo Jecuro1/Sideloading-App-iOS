@@ -15,7 +15,7 @@ struct ContentView: View {
                 TopBar()
                 HStack(alignment: .top, spacing: 18) {
                     DevicePanel()
-                        .frame(width: 290)
+                        .frame(width: 300)
                     BeamStage()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     InspectorPanel()

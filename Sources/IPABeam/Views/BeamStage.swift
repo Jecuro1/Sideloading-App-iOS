@@ -72,7 +72,7 @@ struct BeamStage: View {
                         .rotation3DEffect(.degrees(Double(tilt.height) * 10), axis: (x: 1, y: 0, z: 0), perspective: 0.6)
                         .shadow(color: glowColor.opacity(0.45), radius: 40, y: 20)
                     }
-                    .padding(.top, 108)
+                    .padding(.top, 116)
                 }
                 .frame(maxWidth: .infinity)
 
@@ -215,7 +215,7 @@ private struct FloatingPayload: View {
                 if state.isInstalling {
                     BeamRay(time: t)
                         .frame(width: 120, height: 260)
-                        .offset(y: 40)
+                        .offset(y: 50)
                         .transition(.opacity)
                 }
 
@@ -231,13 +231,15 @@ private struct FloatingPayload: View {
                             .scaleEffect(state.isInstalling ? 0.9 + 0.05 * sin(t * 6) : 1)
                             .neonBorder(cornerRadius: 74 * 0.225, lineWidth: 1.5, active: state.isInstalling)
                     }
-                    .offset(y: -32 + bob)
+                    .offset(y: -18 + bob)
                     .transition(.asymmetric(insertion: .scale(scale: 0.4).combined(with: .opacity),
                                             removal: .move(edge: .bottom).combined(with: .opacity)))
                 }
             }
             .frame(maxWidth: .infinity)
+            .frame(height: 140, alignment: .top)
         }
+        .frame(height: 140, alignment: .top)
         .animation(.spring(response: 0.6, dampingFraction: 0.7), value: hasIPA)
         .animation(.spring(response: 0.6, dampingFraction: 0.7), value: state)
     }
