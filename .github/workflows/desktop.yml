@@ -59,6 +59,8 @@ jobs:
             [ -n "$found" ] && cp "$found" resources/bin/mac/zsign && chmod +x resources/bin/mac/zsign
           fi
           ls -la resources/bin/${{ matrix.target }}
+          # Show the CLI so the flags used by the app can be verified in the log
+          ( ./resources/bin/${{ matrix.target }}/zsign* -h || true ) 2>&1 | head -60
 
       - name: Build app
         env:

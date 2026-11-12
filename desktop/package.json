@@ -61,8 +61,7 @@
       "target": [
         "nsis",
         "portable"
-      ],
-      "icon": "build/icon.png"
+      ]
     },
     "nsis": {
       "oneClick": false,
@@ -78,8 +77,8 @@
         "zip"
       ],
       "category": "public.app-category.developer-tools",
-      "icon": "build/icon.png",
-      "identity": null
+      "identity": null,
+      "x64ArchFiles": "Contents/Resources/bin/**"
     }
   }
 }
